@@ -8,12 +8,12 @@ import { getRectConnectionPoints, getCircleTangents } from '../utils/geometry';
 const INITIAL_STATE: AppState = {
     image: null,
     imageSize: { width: 800, height: 600 },
-    source: { x: 100, y: 100, width: 100, height: 100, type: 'circle', strokeWidth: 3, stroke: '#808080' },
-    target: { x: 300, y: 100, width: 200, height: 200, type: 'circle', strokeWidth: 6, stroke: '#808080' },
+    source: { x: 100, y: 100, width: 100, height: 100, type: 'circle', strokeWidth: 3, stroke: '#2663EB' },
+    target: { x: 300, y: 100, width: 200, height: 200, type: 'circle', strokeWidth: 6, stroke: '#2663EB' },
     magnification: 1.5,
     showGuides: true,
     backgroundOpacity: 0.85,
-    connectionColor: '#808080',
+    connectionColor: '#2663EB',
     connectionWidth: 3,
     exportMode: 'full',
 };
@@ -244,6 +244,7 @@ const SuperLens: React.FC = () => {
                 {lines.map((pts, i) => (
                     <Line
                         key={i}
+                        name="connection-line"
                         points={pts}
                         stroke={state.connectionColor}
                         strokeWidth={state.connectionWidth}
@@ -270,17 +271,25 @@ const SuperLens: React.FC = () => {
 
             transformers.forEach(t => t?.show());
         } else {
-            // Magnifier Only
-            if (magnifierGroupRef.current) {
-                // We need to hide the transformer for the target if it's attached?
-                // Actually the transformer is on the Layer, attached to the shape inside the Group?
-                // No, I attached transformer to targetRef (the shape border), which is inside the Group.
-                // If we export the Group, the transformer is NOT inside the Group, it is a sibling in the Layer.
-                // So export Group should be clean of transformer handles.
+            // Magnifier Only - export background image and lens only
+            if (!stageRef.current) return;
+            
+            // Hide elements we don't want in the export
+            const transformers = [sourceTrRef.current, targetTrRef.current];
+            const sourceShape = sourceRef.current;
+            const connections = stageRef.current.find('.connection-line');
+            
+            transformers.forEach(t => t?.hide());
+            sourceShape?.hide();
+            connections.forEach((line: any) => line.hide());
 
-                const uri = magnifierGroupRef.current.toDataURL({ pixelRatio: 3 }); // Higher res for crop
-                downloadURI(uri, 'superlens-magnifier.png');
-            }
+            const uri = stageRef.current.toDataURL({ pixelRatio: 2 });
+            downloadURI(uri, 'superlens-magnifier.png');
+
+            // Restore visibility
+            transformers.forEach(t => t?.show());
+            sourceShape?.show();
+            connections.forEach((line: any) => line.show());
         }
     };
 
@@ -433,14 +442,14 @@ const SuperLens: React.FC = () => {
 
             {/* Resizer */}
             <div
-                className="w-1 bg-[#333] hover:bg-blue-500 cursor-col-resize transition-colors relative group"
+                className="w-1 bg-[#333] hover:bg-[#2663EB] cursor-col-resize transition-colors relative group"
                 onMouseDown={handleMouseDown}
             >
                 <div className="absolute inset-y-0 -left-1 -right-1" />
             </div>
 
             {/* Sidebar Controls */}
-            <div className="bg-[#242424] px-6 py-3 border-l border-[#333] flex flex-col gap-3" style={{ width: `${sidebarWidth}px` }}>
+            <div className="bg-[#242424] px-6 py-3 border-l border-[#333] flex flex-col gap-3 overflow-y-auto" style={{ width: `${sidebarWidth}px` }}>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
                     SuperLens
                 </h1>
@@ -468,7 +477,7 @@ const SuperLens: React.FC = () => {
                     <h3 className="text-sm font-medium text-gray-400 mb-2">Shape</h3>
                     <div className="flex bg-black rounded p-1 w-fit">
                         <button
-                            className={`p-2 rounded ${state.source.type === 'circle' ? 'bg-blue-600' : 'hover:bg-gray-800'}`}
+                            className={`p-2 rounded ${state.source.type === 'circle' ? 'bg-[#2663EB]' : 'hover:bg-gray-800'}`}
                             onClick={() => setState(s => ({
                                 ...s,
                                 source: { ...s.source, type: 'circle' },
@@ -479,7 +488,7 @@ const SuperLens: React.FC = () => {
                             <div className="w-4 h-4 border border-white rounded-full"></div>
                         </button>
                         <button
-                            className={`p-2 rounded ${state.source.type === 'rect' ? 'bg-blue-600' : 'hover:bg-gray-800'}`}
+                            className={`p-2 rounded ${state.source.type === 'rect' ? 'bg-[#2663EB]' : 'hover:bg-gray-800'}`}
                             onClick={() => setState(s => ({
                                 ...s,
                                 source: { ...s.source, type: 'rect' },
@@ -501,7 +510,7 @@ const SuperLens: React.FC = () => {
                         step="0.1"
                         value={state.magnification}
                         onChange={(e) => setState(s => ({ ...s, magnification: parseFloat(e.target.value) }))}
-                        className="w-full accent-blue-500"
+                        className="w-full accent-[#2663EB]"
                     />
                     <div className="flex justify-between text-xs text-gray-500">
                         <span>1x</span>
@@ -519,7 +528,7 @@ const SuperLens: React.FC = () => {
                         step="0.05"
                         value={state.backgroundOpacity}
                         onChange={(e) => setState(s => ({ ...s, backgroundOpacity: parseFloat(e.target.value) }))}
-                        className="w-full accent-blue-500"
+                        className="w-full accent-[#2663EB]"
                     />
                     <div className="flex justify-between text-xs text-gray-500">
                         <span>0%</span>
@@ -550,7 +559,7 @@ const SuperLens: React.FC = () => {
                                 step="1"
                                 value={state.source.strokeWidth || 3}
                                 onChange={(e) => setState(s => ({ ...s, source: { ...s.source, strokeWidth: Number(e.target.value) } }))}
-                                className="w-full accent-blue-500"
+                                className="w-full accent-[#2663EB]"
                             />
                             <div className="text-xs text-gray-500 text-center mt-1">{state.source.strokeWidth || 3}px</div>
                         </div>
@@ -579,7 +588,7 @@ const SuperLens: React.FC = () => {
                                 step="1"
                                 value={state.connectionWidth}
                                 onChange={(e) => setState(s => ({ ...s, connectionWidth: Number(e.target.value) }))}
-                                className="w-full accent-blue-500"
+                                className="w-full accent-[#2663EB]"
                             />
                             <div className="text-xs text-gray-500 text-center mt-1">{state.connectionWidth}px</div>
                         </div>
@@ -608,7 +617,7 @@ const SuperLens: React.FC = () => {
                                 step="1"
                                 value={state.target.strokeWidth || 6}
                                 onChange={(e) => setState(s => ({ ...s, target: { ...s.target, strokeWidth: Number(e.target.value) } }))}
-                                className="w-full accent-blue-500"
+                                className="w-full accent-[#2663EB]"
                             />
                             <div className="text-xs text-gray-500 text-center mt-1">{state.target.strokeWidth || 6}px</div>
                         </div>
@@ -617,13 +626,13 @@ const SuperLens: React.FC = () => {
 
                 <div className="flex gap-2 mt-auto">
                     <button
-                        className={`flex-1 py-2 text-sm rounded transition-colors ${state.exportMode === 'full' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                        className={`flex-1 py-2 text-sm rounded transition-colors ${state.exportMode === 'full' ? 'bg-[#2663EB] text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
                         onClick={() => setState(s => ({ ...s, exportMode: 'full' }))}
                     >
                         Full
                     </button>
                     <button
-                        className={`flex-1 py-2 text-sm rounded transition-colors ${state.exportMode === 'magnifier' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                        className={`flex-1 py-2 text-sm rounded transition-colors ${state.exportMode === 'magnifier' ? 'bg-[#2663EB] text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
                         onClick={() => setState(s => ({ ...s, exportMode: 'magnifier' }))}
                     >
                         Magnifier
@@ -631,7 +640,7 @@ const SuperLens: React.FC = () => {
                 </div>
 
                 <button
-                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold transition-colors shadow-lg"
+                    className="w-full bg-[#2663EB] hover:bg-[#1d4fb8] text-white py-3 rounded-lg font-bold transition-colors shadow-lg"
                     onClick={handleExport}
                 >
                     Export {state.exportMode === 'full' ? 'Image' : 'Magnifier'}
