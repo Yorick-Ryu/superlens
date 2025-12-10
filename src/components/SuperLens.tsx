@@ -8,12 +8,12 @@ import { getRectConnectionPoints, getCircleTangents } from '../utils/geometry';
 const INITIAL_STATE: AppState = {
     image: null,
     imageSize: { width: 800, height: 600 },
-    source: { x: 100, y: 100, width: 100, height: 100, type: 'circle', strokeWidth: 3, stroke: '#2663EB' },
-    target: { x: 300, y: 100, width: 200, height: 200, type: 'circle', strokeWidth: 6, stroke: '#2663EB' },
+    source: { x: 100, y: 100, width: 100, height: 100, type: 'circle', strokeWidth: 3, stroke: '#4E6BFE' },
+    target: { x: 300, y: 100, width: 200, height: 200, type: 'circle', strokeWidth: 3, stroke: '#4E6BFE' },
     magnification: 1.5,
     showGuides: true,
     backgroundOpacity: 0.85,
-    connectionColor: '#2663EB',
+    connectionColor: '#4E6BFE',
     connectionWidth: 3,
     exportMode: 'full',
 };
@@ -139,6 +139,38 @@ const SuperLens: React.FC = () => {
                 rotation: node.rotation(),
             }
         }));
+    };
+
+    // Convert a shape preserving its center when switching between 'rect' and 'circle'
+    const convertShapePreserveCenter = (shape: any, toType: 'rect' | 'circle') => {
+        if (shape.type === toType) return { ...shape };
+
+        if (toType === 'circle') {
+            // rect -> circle: compute center from rect (x,y is top-left)
+            const centerX = shape.x + (shape.width || 0) / 2;
+            const centerY = shape.y + (shape.height || 0) / 2;
+            const diameter = Math.max(shape.width || shape.height || 0, 1);
+            return {
+                ...shape,
+                type: 'circle',
+                x: centerX,
+                y: centerY,
+                width: diameter,
+                height: diameter,
+            };
+        }
+
+        // circle -> rect: interpret circle x,y as center, convert to top-left
+        const rectX = (shape.x || 0) - (shape.width || 0) / 2;
+        const rectY = (shape.y || 0) - (shape.height || 0) / 2;
+        return {
+            ...shape,
+            type: 'rect',
+            x: rectX,
+            y: rectY,
+            width: shape.width,
+            height: shape.height,
+        };
     };
 
     const renderMagnifierLayer = () => {
@@ -273,12 +305,12 @@ const SuperLens: React.FC = () => {
         } else {
             // Magnifier Only - export background image and lens only
             if (!stageRef.current) return;
-            
+
             // Hide elements we don't want in the export
             const transformers = [sourceTrRef.current, targetTrRef.current];
             const sourceShape = sourceRef.current;
             const connections = stageRef.current.find('.connection-line');
-            
+
             transformers.forEach(t => t?.hide());
             sourceShape?.hide();
             connections.forEach((line: any) => line.hide());
@@ -368,12 +400,24 @@ const SuperLens: React.FC = () => {
                 >
                     <Layer>
                         {img && (
-                            <KonvaImage
-                                image={img}
-                                width={state.imageSize.width}
-                                height={state.imageSize.height}
-                                opacity={state.backgroundOpacity}
-                            />
+                            <>
+                                <KonvaImage
+                                    image={img}
+                                    width={state.imageSize.width}
+                                    height={state.imageSize.height}
+                                    opacity={1}
+                                />
+                                {/* Black overlay mask - opacity is inverse of backgroundOpacity */}
+                                <Rect
+                                    x={0}
+                                    y={0}
+                                    width={state.imageSize.width}
+                                    height={state.imageSize.height}
+                                    fill="black"
+                                    opacity={1 - state.backgroundOpacity}
+                                    listening={false}
+                                />
+                            </>
                         )}
 
                         {state.source.width > 0 && renderConnections()}
@@ -480,8 +524,8 @@ const SuperLens: React.FC = () => {
                             className={`p-2 rounded ${state.source.type === 'circle' ? 'bg-[#2663EB]' : 'hover:bg-gray-800'}`}
                             onClick={() => setState(s => ({
                                 ...s,
-                                source: { ...s.source, type: 'circle' },
-                                target: { ...s.target, type: 'circle' }
+                                source: convertShapePreserveCenter(s.source, 'circle'),
+                                target: convertShapePreserveCenter(s.target, 'circle')
                             }))}
                             title="Circle"
                         >
@@ -491,8 +535,8 @@ const SuperLens: React.FC = () => {
                             className={`p-2 rounded ${state.source.type === 'rect' ? 'bg-[#2663EB]' : 'hover:bg-gray-800'}`}
                             onClick={() => setState(s => ({
                                 ...s,
-                                source: { ...s.source, type: 'rect' },
-                                target: { ...s.target, type: 'rect' }
+                                source: convertShapePreserveCenter(s.source, 'rect'),
+                                target: convertShapePreserveCenter(s.target, 'rect')
                             }))}
                             title="Rectangle"
                         >
