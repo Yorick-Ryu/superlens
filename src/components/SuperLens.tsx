@@ -288,25 +288,31 @@ const SuperLens: React.FC = () => {
     };
 
     const handleExport = async () => {
-        if (state.exportMode === 'full') {
-            // Hide UI elements briefly? Or just export stage
-            // The stage contains transformers and selection handles which we might not want.
-            // But the request says "default export source frame and connection lines and magnifier area"
-            // It implies we SHOULD export the source border and connections.
-            // Transformers (handles) should probably be hidden.
+        if (!stageRef.current || !img) return;
 
+        // Calculate the scale to export at original image dimensions
+        const originalWidth = img.width;
+        // const originalHeight = img.height;
+        const displayedWidth = state.imageSize.width;
+        const displayedHeight = state.imageSize.height;
+        const scaleRatio = originalWidth / displayedWidth;
+
+        if (state.exportMode === 'full') {
             const transformers = [sourceTrRef.current, targetTrRef.current];
             transformers.forEach(t => t?.hide());
 
-            const uri = stageRef.current.toDataURL({ pixelRatio: 2 }); // High res
+            const uri = stageRef.current.toDataURL({
+                pixelRatio: scaleRatio,
+                x: 0,
+                y: 0,
+                width: displayedWidth,
+                height: displayedHeight,
+            });
             downloadURI(uri, 'superlens-export.png');
 
             transformers.forEach(t => t?.show());
         } else {
             // Magnifier Only - export background image and lens only
-            if (!stageRef.current) return;
-
-            // Hide elements we don't want in the export
             const transformers = [sourceTrRef.current, targetTrRef.current];
             const sourceShape = sourceRef.current;
             const connections = stageRef.current.find('.connection-line');
@@ -315,7 +321,13 @@ const SuperLens: React.FC = () => {
             sourceShape?.hide();
             connections.forEach((line: any) => line.hide());
 
-            const uri = stageRef.current.toDataURL({ pixelRatio: 2 });
+            const uri = stageRef.current.toDataURL({
+                pixelRatio: scaleRatio,
+                x: 0,
+                y: 0,
+                width: displayedWidth,
+                height: displayedHeight,
+            });
             downloadURI(uri, 'superlens-magnifier.png');
 
             // Restore visibility
