@@ -498,7 +498,7 @@ const SuperLens: React.FC = () => {
 
             {/* Resizer */}
             <div
-                className="w-1 bg-[#333] hover:bg-[#2663EB] cursor-col-resize transition-colors relative group"
+                className="w-1 bg-[#333] hover:bg-[#2563EB] cursor-col-resize transition-colors relative group"
                 onMouseDown={handleMouseDown}
             >
                 <div className="absolute inset-y-0 -left-1 -right-1" />
@@ -533,7 +533,7 @@ const SuperLens: React.FC = () => {
                     <h3 className="text-sm font-medium text-gray-400 mb-2">Shape</h3>
                     <div className="flex bg-black rounded p-1 w-fit">
                         <button
-                            className={`p-2 rounded ${state.source.type === 'circle' ? 'bg-[#2663EB]' : 'hover:bg-gray-800'}`}
+                            className={`p-2 rounded ${state.source.type === 'circle' ? 'bg-[#2563EB]' : 'hover:bg-gray-800'}`}
                             onClick={() => setState(s => ({
                                 ...s,
                                 source: convertShapePreserveCenter(s.source, 'circle'),
@@ -544,7 +544,7 @@ const SuperLens: React.FC = () => {
                             <div className="w-4 h-4 border border-white rounded-full"></div>
                         </button>
                         <button
-                            className={`p-2 rounded ${state.source.type === 'rect' ? 'bg-[#2663EB]' : 'hover:bg-gray-800'}`}
+                            className={`p-2 rounded ${state.source.type === 'rect' ? 'bg-[#2563EB]' : 'hover:bg-gray-800'}`}
                             onClick={() => setState(s => ({
                                 ...s,
                                 source: convertShapePreserveCenter(s.source, 'rect'),
@@ -566,7 +566,7 @@ const SuperLens: React.FC = () => {
                         step="0.1"
                         value={state.magnification}
                         onChange={(e) => setState(s => ({ ...s, magnification: parseFloat(e.target.value) }))}
-                        className="w-full accent-[#2663EB]"
+                        className="w-full accent-[#2563EB]"
                     />
                     <div className="flex justify-between text-xs text-gray-500">
                         <span>1x</span>
@@ -584,7 +584,7 @@ const SuperLens: React.FC = () => {
                         step="0.05"
                         value={state.backgroundOpacity}
                         onChange={(e) => setState(s => ({ ...s, backgroundOpacity: parseFloat(e.target.value) }))}
-                        className="w-full accent-[#2663EB]"
+                        className="w-full accent-[#2563EB]"
                     />
                     <div className="flex justify-between text-xs text-gray-500">
                         <span>0%</span>
@@ -615,7 +615,7 @@ const SuperLens: React.FC = () => {
                                 step="1"
                                 value={state.source.strokeWidth || 3}
                                 onChange={(e) => setState(s => ({ ...s, source: { ...s.source, strokeWidth: Number(e.target.value) } }))}
-                                className="w-full accent-[#2663EB]"
+                                className="w-full accent-[#2563EB]"
                             />
                             <div className="text-xs text-gray-500 text-center mt-1">{state.source.strokeWidth || 3}px</div>
                         </div>
@@ -644,7 +644,7 @@ const SuperLens: React.FC = () => {
                                 step="1"
                                 value={state.connectionWidth}
                                 onChange={(e) => setState(s => ({ ...s, connectionWidth: Number(e.target.value) }))}
-                                className="w-full accent-[#2663EB]"
+                                className="w-full accent-[#2563EB]"
                             />
                             <div className="text-xs text-gray-500 text-center mt-1">{state.connectionWidth}px</div>
                         </div>
@@ -673,7 +673,7 @@ const SuperLens: React.FC = () => {
                                 step="1"
                                 value={state.target.strokeWidth || 6}
                                 onChange={(e) => setState(s => ({ ...s, target: { ...s.target, strokeWidth: Number(e.target.value) } }))}
-                                className="w-full accent-[#2663EB]"
+                                className="w-full accent-[#2563EB]"
                             />
                             <div className="text-xs text-gray-500 text-center mt-1">{state.target.strokeWidth || 6}px</div>
                         </div>
@@ -682,13 +682,13 @@ const SuperLens: React.FC = () => {
 
                 <div className="flex gap-2 mt-auto">
                     <button
-                        className={`flex-1 py-2 text-sm rounded transition-colors ${state.exportMode === 'full' ? 'bg-[#2663EB] text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                        className={`flex-1 py-2 text-sm rounded transition-colors ${state.exportMode === 'full' ? 'bg-[#2563EB] text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
                         onClick={() => setState(s => ({ ...s, exportMode: 'full' }))}
                     >
                         Full
                     </button>
                     <button
-                        className={`flex-1 py-2 text-sm rounded transition-colors ${state.exportMode === 'magnifier' ? 'bg-[#2663EB] text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                        className={`flex-1 py-2 text-sm rounded transition-colors ${state.exportMode === 'magnifier' ? 'bg-[#2563EB] text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
                         onClick={() => setState(s => ({ ...s, exportMode: 'magnifier' }))}
                     >
                         Magnifier
@@ -696,7 +696,7 @@ const SuperLens: React.FC = () => {
                 </div>
 
                 <button
-                    className="w-full bg-[#2663EB] hover:bg-[#1d4fb8] text-white py-3 rounded-lg font-bold transition-colors shadow-lg"
+                    className="w-full bg-[#2563EB] hover:bg-[#1d4fb8] text-white py-3 rounded-lg font-bold transition-colors shadow-lg"
                     onClick={handleExport}
                 >
                     Export {state.exportMode === 'full' ? 'Image' : 'Magnifier'}
