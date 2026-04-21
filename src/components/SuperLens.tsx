@@ -384,12 +384,12 @@ const SuperLens: React.FC = () => {
 
 
     return (
-        <div className="flex w-full h-screen bg-[#1a1a1a]">
+        <div className="flex w-full h-screen bg-[#16161e]">
             {/* Canvas Area */}
             <div className="flex-1 overflow-hidden relative flex items-center justify-center" ref={canvasRef}>
                 {/* Upload Overlay */}
                 {!imageSrc && (
-                    <div className="absolute inset-0 flex items-center justify-center z-10 bg-[#1a1a1a]">
+                    <div className="absolute inset-0 flex items-center justify-center z-10 bg-[#16161e]">
                         <div className="p-8 border-2 border-dashed border-gray-600 rounded-xl hover:border-blue-500 transition-colors cursor-pointer relative">
                             <input
                                 type="file"
@@ -399,7 +399,7 @@ const SuperLens: React.FC = () => {
                             />
                             <div className="flex flex-col items-center gap-4">
                                 <Upload size={48} className="text-gray-400" />
-                                <p className="text-xl font-medium">Drop an image here or click to upload</p>
+                                <p className="text-sm font-medium text-[#9898b2]">Drop an image here or click to upload</p>
                             </div>
                         </div>
                     </div>
@@ -505,8 +505,8 @@ const SuperLens: React.FC = () => {
             </div>
 
             {/* Sidebar Controls */}
-            <div className="bg-[#242424] px-6 py-3 border-l border-[#333] flex flex-col gap-3 overflow-y-auto" style={{ width: `${sidebarWidth}px` }}>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+            <div className="bg-[#1e1e2a] px-6 py-4 border-l border-[#2a2a3a] flex flex-col gap-3 overflow-y-auto" style={{ width: `${sidebarWidth}px` }}>
+                <h1 className="font-display text-base font-bold tracking-[0.08em] text-white uppercase">
                     SuperLens
                 </h1>
 
@@ -520,7 +520,7 @@ const SuperLens: React.FC = () => {
                         id="reupload-input"
                     />
                     <button
-                        className="w-full bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                        className="w-full bg-[#2a2a38] hover:bg-[#323244] text-[#c8c8d8] py-2 rounded-lg text-xs font-medium tracking-wide transition-colors flex items-center justify-center gap-2"
                         onClick={() => document.getElementById('reupload-input')?.click()}
                     >
                         <Upload size={18} />
@@ -530,8 +530,8 @@ const SuperLens: React.FC = () => {
 
                 {/* Shape Types */}
                 <div>
-                    <h3 className="text-sm font-medium text-gray-400 mb-2">Shape</h3>
-                    <div className="flex bg-black rounded p-1 w-fit">
+                    <h3 className="text-[10px] font-semibold uppercase tracking-widest text-[#64647a] mb-2">Shape</h3>
+                    <div className="flex bg-[#111118] rounded p-1 w-fit">
                         <button
                             className={`p-2 rounded ${state.source.type === 'circle' ? 'bg-[#2563EB]' : 'hover:bg-gray-800'}`}
                             onClick={() => setState(s => ({
@@ -558,7 +558,7 @@ const SuperLens: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-400">Magnification</label>
+                    <label className="block text-xs font-medium text-[#9898b2]">Magnification</label>
                     <input
                         type="range"
                         min="1"
@@ -568,15 +568,15 @@ const SuperLens: React.FC = () => {
                         onChange={(e) => setState(s => ({ ...s, magnification: parseFloat(e.target.value) }))}
                         className="w-full accent-[#2563EB]"
                     />
-                    <div className="flex justify-between text-xs text-gray-500">
-                        <span>1x</span>
-                        <span>{state.magnification}x</span>
-                        <span>5x</span>
+                    <div className="flex justify-between text-[10px] text-[#505060] tabular-nums">
+                        <span>1×</span>
+                        <span className="text-[#9898b2]">{state.magnification.toFixed(1)}×</span>
+                        <span>5×</span>
                     </div>
                 </div>
 
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-400">Background Opacity</label>
+                    <label className="block text-xs font-medium text-[#9898b2]">Background Opacity</label>
                     <input
                         type="range"
                         min="0"
@@ -586,19 +586,19 @@ const SuperLens: React.FC = () => {
                         onChange={(e) => setState(s => ({ ...s, backgroundOpacity: parseFloat(e.target.value) }))}
                         className="w-full accent-[#2563EB]"
                     />
-                    <div className="flex justify-between text-xs text-gray-500">
+                    <div className="flex justify-between text-[10px] text-[#505060] tabular-nums">
                         <span>0%</span>
-                        <span>{Math.round(state.backgroundOpacity * 100)}%</span>
+                        <span className="text-[#9898b2]">{Math.round(state.backgroundOpacity * 100)}%</span>
                         <span>100%</span>
                     </div>
                 </div>
 
                 {/* Source */}
                 <div className="space-y-2">
-                    <h3 className="text-sm font-medium text-gray-400 mb-2">Source</h3>
+                    <h3 className="text-[10px] font-semibold uppercase tracking-widest text-[#64647a] mb-2">Source</h3>
                     <div className="grid grid-cols-3 gap-2">
                         <div>
-                            <label className="text-xs text-gray-400 mb-1 block">Color</label>
+                            <label className="text-[10px] font-medium uppercase tracking-wider text-[#64647a] mb-1 block">Color</label>
                             <input
                                 type="color"
                                 className="w-full h-8 bg-transparent cursor-pointer rounded"
@@ -607,7 +607,7 @@ const SuperLens: React.FC = () => {
                             />
                         </div>
                         <div className="col-span-2">
-                            <label className="text-xs text-gray-400 mb-1 block">Width</label>
+                            <label className="text-[10px] font-medium uppercase tracking-wider text-[#64647a] mb-1 block">Width</label>
                             <input
                                 type="range"
                                 min="1"
@@ -617,17 +617,17 @@ const SuperLens: React.FC = () => {
                                 onChange={(e) => setState(s => ({ ...s, source: { ...s.source, strokeWidth: Number(e.target.value) } }))}
                                 className="w-full accent-[#2563EB]"
                             />
-                            <div className="text-xs text-gray-500 text-center mt-1">{state.source.strokeWidth || 3}px</div>
+                            <div className="text-[10px] text-[#9898b2] text-center mt-1 tabular-nums">{state.source.strokeWidth || 3}px</div>
                         </div>
                     </div>
                 </div>
 
                 {/* Connection */}
                 <div className="space-y-2">
-                    <h3 className="text-sm font-medium text-gray-400 mb-2">Connection</h3>
+                    <h3 className="text-[10px] font-semibold uppercase tracking-widest text-[#64647a] mb-2">Connection</h3>
                     <div className="grid grid-cols-3 gap-2">
                         <div>
-                            <label className="text-xs text-gray-400 mb-1 block">Color</label>
+                            <label className="text-[10px] font-medium uppercase tracking-wider text-[#64647a] mb-1 block">Color</label>
                             <input
                                 type="color"
                                 className="w-full h-8 bg-transparent cursor-pointer rounded"
@@ -636,7 +636,7 @@ const SuperLens: React.FC = () => {
                             />
                         </div>
                         <div className="col-span-2">
-                            <label className="text-xs text-gray-400 mb-1 block">Width</label>
+                            <label className="text-[10px] font-medium uppercase tracking-wider text-[#64647a] mb-1 block">Width</label>
                             <input
                                 type="range"
                                 min="1"
@@ -646,17 +646,17 @@ const SuperLens: React.FC = () => {
                                 onChange={(e) => setState(s => ({ ...s, connectionWidth: Number(e.target.value) }))}
                                 className="w-full accent-[#2563EB]"
                             />
-                            <div className="text-xs text-gray-500 text-center mt-1">{state.connectionWidth}px</div>
+                            <div className="text-[10px] text-[#9898b2] text-center mt-1 tabular-nums">{state.connectionWidth}px</div>
                         </div>
                     </div>
                 </div>
 
                 {/* Magnifier */}
                 <div className="space-y-2">
-                    <h3 className="text-sm font-medium text-gray-400 mb-2">Magnifier</h3>
+                    <h3 className="text-[10px] font-semibold uppercase tracking-widest text-[#64647a] mb-2">Magnifier</h3>
                     <div className="grid grid-cols-3 gap-2">
                         <div>
-                            <label className="text-xs text-gray-400 mb-1 block">Color</label>
+                            <label className="text-[10px] font-medium uppercase tracking-wider text-[#64647a] mb-1 block">Color</label>
                             <input
                                 type="color"
                                 className="w-full h-8 bg-transparent cursor-pointer rounded"
@@ -665,7 +665,7 @@ const SuperLens: React.FC = () => {
                             />
                         </div>
                         <div className="col-span-2">
-                            <label className="text-xs text-gray-400 mb-1 block">Width</label>
+                            <label className="text-[10px] font-medium uppercase tracking-wider text-[#64647a] mb-1 block">Width</label>
                             <input
                                 type="range"
                                 min="1"
@@ -675,20 +675,20 @@ const SuperLens: React.FC = () => {
                                 onChange={(e) => setState(s => ({ ...s, target: { ...s.target, strokeWidth: Number(e.target.value) } }))}
                                 className="w-full accent-[#2563EB]"
                             />
-                            <div className="text-xs text-gray-500 text-center mt-1">{state.target.strokeWidth || 6}px</div>
+                            <div className="text-[10px] text-[#9898b2] text-center mt-1 tabular-nums">{state.target.strokeWidth || 6}px</div>
                         </div>
                     </div>
                 </div>
 
                 <div className="flex gap-2 mt-auto">
                     <button
-                        className={`flex-1 py-2 text-sm rounded transition-colors ${state.exportMode === 'full' ? 'bg-[#2563EB] text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                        className={`flex-1 py-2 text-xs font-medium tracking-wide rounded transition-colors ${state.exportMode === 'full' ? 'bg-[#2563EB] text-white' : 'bg-[#2a2a38] text-[#9898b2] hover:bg-[#323244]'}`}
                         onClick={() => setState(s => ({ ...s, exportMode: 'full' }))}
                     >
                         Full
                     </button>
                     <button
-                        className={`flex-1 py-2 text-sm rounded transition-colors ${state.exportMode === 'magnifier' ? 'bg-[#2563EB] text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                        className={`flex-1 py-2 text-xs font-medium tracking-wide rounded transition-colors ${state.exportMode === 'magnifier' ? 'bg-[#2563EB] text-white' : 'bg-[#2a2a38] text-[#9898b2] hover:bg-[#32324a]'}`}
                         onClick={() => setState(s => ({ ...s, exportMode: 'magnifier' }))}
                     >
                         Magnifier
@@ -696,7 +696,7 @@ const SuperLens: React.FC = () => {
                 </div>
 
                 <button
-                    className="w-full bg-[#2563EB] hover:bg-[#1d4fb8] text-white py-3 rounded-lg font-bold transition-colors shadow-lg"
+                    className="w-full bg-[#2563EB] hover:bg-[#1d4fb8] text-white py-3 rounded-lg text-sm font-semibold tracking-wide transition-colors"
                     onClick={handleExport}
                 >
                     Export {state.exportMode === 'full' ? 'Image' : 'Magnifier'}
