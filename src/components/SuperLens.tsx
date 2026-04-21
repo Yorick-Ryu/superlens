@@ -516,7 +516,7 @@ const SuperLens: React.FC = () => {
                         id="reupload-input"
                     />
                     <button
-                        className="w-full bg-[#2a2a38] hover:bg-[#323244] text-[#c8c8d8] py-2 rounded-lg text-xs font-medium tracking-wide transition-all active:scale-[0.97] flex items-center justify-center gap-2"
+                        className="w-full bg-[#2a2a38] hover:bg-[#323244] text-[#c8c8d8] py-2 rounded-md text-xs font-medium tracking-wide transition-all active:scale-[0.97] flex items-center justify-center gap-2"
                         onClick={() => document.getElementById('reupload-input')?.click()}
                     >
                         <Upload size={14} />
@@ -527,28 +527,28 @@ const SuperLens: React.FC = () => {
                 {/* Shape Types */}
                 <div>
                     <h3 className="text-[10px] font-semibold uppercase tracking-widest text-[#64647a] mb-2">Shape</h3>
-                    <div className="flex bg-[#111118] rounded p-1 w-fit">
+                    <div className="flex bg-[#111118] rounded-md p-1">
                         <button
-                            className={`p-2 rounded ${state.source.type === 'circle' ? 'bg-[#2563EB]' : 'hover:bg-gray-800'}`}
+                            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-medium transition-all active:scale-[0.96] ${state.source.type === 'circle' ? 'bg-[#2563EB] text-white' : 'text-[#64647a] hover:text-[#9898b2] hover:bg-[#1e1e2e]'}`}
                             onClick={() => setState(s => ({
                                 ...s,
                                 source: convertShapePreserveCenter(s.source, 'circle'),
                                 target: convertShapePreserveCenter(s.target, 'circle')
                             }))}
-                            title="Circle"
                         >
-                            <div className="w-4 h-4 border border-white rounded-full"></div>
+                            <div className="w-3 h-3 border border-current rounded-full flex-shrink-0"></div>
+                            Circle
                         </button>
                         <button
-                            className={`p-2 rounded ${state.source.type === 'rect' ? 'bg-[#2563EB]' : 'hover:bg-gray-800'}`}
+                            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-medium transition-all active:scale-[0.96] ${state.source.type === 'rect' ? 'bg-[#2563EB] text-white' : 'text-[#64647a] hover:text-[#9898b2] hover:bg-[#1e1e2e]'}`}
                             onClick={() => setState(s => ({
                                 ...s,
                                 source: convertShapePreserveCenter(s.source, 'rect'),
                                 target: convertShapePreserveCenter(s.target, 'rect')
                             }))}
-                            title="Rectangle"
                         >
-                            <div className="w-4 h-4 border border-white"></div>
+                            <div className="w-3 h-3 border border-current flex-shrink-0"></div>
+                            Rect
                         </button>
                     </div>
                 </div>
@@ -597,7 +597,7 @@ const SuperLens: React.FC = () => {
                             <label className="text-[10px] font-medium uppercase tracking-wider text-[#64647a] mb-1 block">Color</label>
                             <input
                                 type="color"
-                                className="w-full h-8 bg-transparent cursor-pointer rounded"
+                                className="w-full h-8 bg-transparent cursor-pointer rounded-md"
                                 value={state.source.stroke || "#808080"}
                                 onChange={(e) => setState(s => ({ ...s, source: { ...s.source, stroke: e.target.value } }))}
                             />
@@ -635,7 +635,7 @@ const SuperLens: React.FC = () => {
                             <label className="text-[10px] font-medium uppercase tracking-wider text-[#64647a] mb-1 block">Color</label>
                             <input
                                 type="color"
-                                className="w-full h-8 bg-transparent cursor-pointer rounded"
+                                className="w-full h-8 bg-transparent cursor-pointer rounded-md"
                                 value={state.connectionColor}
                                 onChange={(e) => setState(s => ({ ...s, connectionColor: e.target.value }))}
                             />
@@ -664,7 +664,7 @@ const SuperLens: React.FC = () => {
                             <label className="text-[10px] font-medium uppercase tracking-wider text-[#64647a] mb-1 block">Color</label>
                             <input
                                 type="color"
-                                className="w-full h-8 bg-transparent cursor-pointer rounded"
+                                className="w-full h-8 bg-transparent cursor-pointer rounded-md"
                                 value={state.target.stroke || "#808080"}
                                 onChange={(e) => setState(s => ({ ...s, target: { ...s.target, stroke: e.target.value } }))}
                             />
@@ -687,13 +687,13 @@ const SuperLens: React.FC = () => {
 
                 <div className="flex gap-2 mt-auto">
                     <button
-                        className={`flex-1 py-2 text-xs font-medium tracking-wide rounded transition-all active:scale-[0.96] ${state.exportMode === 'full' ? 'bg-[#2563EB] text-white' : 'bg-[#2a2a38] text-[#9898b2] hover:bg-[#323244]'}`}
+                        className={`flex-1 py-2 text-xs font-medium tracking-wide rounded-md transition-all active:scale-[0.96] ${state.exportMode === 'full' ? 'bg-[#2563EB] text-white' : 'bg-[#2a2a38] text-[#9898b2] hover:bg-[#323244]'}`}
                         onClick={() => setState(s => ({ ...s, exportMode: 'full' }))}
                     >
                         Full Image
                     </button>
                     <button
-                        className={`flex-1 py-2 text-xs font-medium tracking-wide rounded transition-all active:scale-[0.96] ${state.exportMode === 'magnifier' ? 'bg-[#2563EB] text-white' : 'bg-[#2a2a38] text-[#9898b2] hover:bg-[#32324a]'}`}
+                        className={`flex-1 py-2 text-xs font-medium tracking-wide rounded-md transition-all active:scale-[0.96] ${state.exportMode === 'magnifier' ? 'bg-[#2563EB] text-white' : 'bg-[#2a2a38] text-[#9898b2] hover:bg-[#323244]'}`}
                         onClick={() => setState(s => ({ ...s, exportMode: 'magnifier' }))}
                     >
                         Lens Only
@@ -701,7 +701,7 @@ const SuperLens: React.FC = () => {
                 </div>
 
                 <button
-                    className={`w-full py-3 rounded-lg text-sm font-semibold tracking-wide transition-all duration-200 active:scale-[0.97] disabled:cursor-not-allowed ${
+                    className={`w-full py-3 rounded-md text-sm font-semibold tracking-wide transition-all duration-200 active:scale-[0.97] disabled:cursor-not-allowed ${
                         exportState === 'done'
                             ? 'bg-[#1a6b3a] text-white'
                             : exportState === 'error'
