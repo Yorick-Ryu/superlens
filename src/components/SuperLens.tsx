@@ -25,6 +25,7 @@ const SuperLens: React.FC = () => {
     const [sidebarWidth, setSidebarWidth] = useState(300);
     const [isResizing, setIsResizing] = useState(false);
     const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
+    const [exportState, setExportState] = useState<'idle' | 'exporting' | 'done' | 'error'>('idle');
     const stageRef = useRef<any>(null);
     const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -288,52 +289,47 @@ const SuperLens: React.FC = () => {
     };
 
     const handleExport = async () => {
-        if (!stageRef.current || !img) return;
+        if (!stageRef.current || !img) {
+            setExportState('error');
+            setTimeout(() => setExportState('idle'), 2000);
+            return;
+        }
 
-        // Calculate the scale to export at original image dimensions
-        const originalWidth = img.width;
-        // const originalHeight = img.height;
-        const displayedWidth = state.imageSize.width;
-        const displayedHeight = state.imageSize.height;
-        const scaleRatio = originalWidth / displayedWidth;
+        setExportState('exporting');
+        // Let the UI repaint before toDataURL blocks the thread
+        await new Promise(resolve => requestAnimationFrame(resolve));
 
-        if (state.exportMode === 'full') {
-            const transformers = [sourceTrRef.current, targetTrRef.current];
-            transformers.forEach(t => t?.hide());
+        try {
+            const originalWidth = img.width;
+            const displayedWidth = state.imageSize.width;
+            const displayedHeight = state.imageSize.height;
+            const scaleRatio = originalWidth / displayedWidth;
 
-            const uri = stageRef.current.toDataURL({
-                pixelRatio: scaleRatio,
-                x: 0,
-                y: 0,
-                width: displayedWidth,
-                height: displayedHeight,
-            });
-            downloadURI(uri, 'superlens-export.png');
+            if (state.exportMode === 'full') {
+                const transformers = [sourceTrRef.current, targetTrRef.current];
+                transformers.forEach(t => t?.hide());
+                const uri = stageRef.current.toDataURL({ pixelRatio: scaleRatio, x: 0, y: 0, width: displayedWidth, height: displayedHeight });
+                downloadURI(uri, 'superlens-export.png');
+                transformers.forEach(t => t?.show());
+            } else {
+                const transformers = [sourceTrRef.current, targetTrRef.current];
+                const sourceShape = sourceRef.current;
+                const connections = stageRef.current.find('.connection-line');
+                transformers.forEach(t => t?.hide());
+                sourceShape?.hide();
+                connections.forEach((line: any) => line.hide());
+                const uri = stageRef.current.toDataURL({ pixelRatio: scaleRatio, x: 0, y: 0, width: displayedWidth, height: displayedHeight });
+                downloadURI(uri, 'superlens-lens.png');
+                transformers.forEach(t => t?.show());
+                sourceShape?.show();
+                connections.forEach((line: any) => line.show());
+            }
 
-            transformers.forEach(t => t?.show());
-        } else {
-            // Magnifier Only - export background image and lens only
-            const transformers = [sourceTrRef.current, targetTrRef.current];
-            const sourceShape = sourceRef.current;
-            const connections = stageRef.current.find('.connection-line');
-
-            transformers.forEach(t => t?.hide());
-            sourceShape?.hide();
-            connections.forEach((line: any) => line.hide());
-
-            const uri = stageRef.current.toDataURL({
-                pixelRatio: scaleRatio,
-                x: 0,
-                y: 0,
-                width: displayedWidth,
-                height: displayedHeight,
-            });
-            downloadURI(uri, 'superlens-magnifier.png');
-
-            // Restore visibility
-            transformers.forEach(t => t?.show());
-            sourceShape?.show();
-            connections.forEach((line: any) => line.show());
+            setExportState('done');
+            setTimeout(() => setExportState('idle'), 2200);
+        } catch {
+            setExportState('error');
+            setTimeout(() => setExportState('idle'), 2000);
         }
     };
 
@@ -390,18 +386,18 @@ const SuperLens: React.FC = () => {
                 {/* Upload Overlay */}
                 {!imageSrc && (
                     <div className="absolute inset-0 flex items-center justify-center z-10 bg-[#16161e]">
-                        <div className="p-8 border-2 border-dashed border-gray-600 rounded-xl hover:border-blue-500 transition-colors cursor-pointer relative">
+                        <label className="group p-10 border border-dashed border-[#333348] rounded-xl hover:border-[#2563EB] transition-all duration-200 cursor-pointer block hover:bg-[#1e1e2e]">
                             <input
                                 type="file"
                                 accept="image/*"
                                 onChange={handleImageUpload}
-                                className="absolute inset-0 opacity-0 cursor-pointer"
+                                className="sr-only"
                             />
-                            <div className="flex flex-col items-center gap-4">
-                                <Upload size={48} className="text-gray-400" />
-                                <p className="text-sm font-medium text-[#9898b2]">Drop an image here or click to upload</p>
+                            <div className="flex flex-col items-center gap-4 pointer-events-none group-hover:scale-105 transition-transform duration-200">
+                                <Upload size={40} className="text-[#64647a] group-hover:text-[#2563EB] transition-colors duration-200" />
+                                <p className="text-sm font-medium text-[#64647a] group-hover:text-[#9898b2] transition-colors duration-200">Drop or click to add your image</p>
                             </div>
-                        </div>
+                        </label>
                     </div>
                 )}
                 <Stage
@@ -520,11 +516,11 @@ const SuperLens: React.FC = () => {
                         id="reupload-input"
                     />
                     <button
-                        className="w-full bg-[#2a2a38] hover:bg-[#323244] text-[#c8c8d8] py-2 rounded-lg text-xs font-medium tracking-wide transition-colors flex items-center justify-center gap-2"
+                        className="w-full bg-[#2a2a38] hover:bg-[#323244] text-[#c8c8d8] py-2 rounded-lg text-xs font-medium tracking-wide transition-all active:scale-[0.97] flex items-center justify-center gap-2"
                         onClick={() => document.getElementById('reupload-input')?.click()}
                     >
                         <Upload size={14} />
-                        Change Image
+                        {imageSrc ? 'Change Image' : 'Upload Image'}
                     </button>
                 </div>
 
@@ -691,13 +687,13 @@ const SuperLens: React.FC = () => {
 
                 <div className="flex gap-2 mt-auto">
                     <button
-                        className={`flex-1 py-2 text-xs font-medium tracking-wide rounded transition-colors ${state.exportMode === 'full' ? 'bg-[#2563EB] text-white' : 'bg-[#2a2a38] text-[#9898b2] hover:bg-[#323244]'}`}
+                        className={`flex-1 py-2 text-xs font-medium tracking-wide rounded transition-all active:scale-[0.96] ${state.exportMode === 'full' ? 'bg-[#2563EB] text-white' : 'bg-[#2a2a38] text-[#9898b2] hover:bg-[#323244]'}`}
                         onClick={() => setState(s => ({ ...s, exportMode: 'full' }))}
                     >
                         Full Image
                     </button>
                     <button
-                        className={`flex-1 py-2 text-xs font-medium tracking-wide rounded transition-colors ${state.exportMode === 'magnifier' ? 'bg-[#2563EB] text-white' : 'bg-[#2a2a38] text-[#9898b2] hover:bg-[#32324a]'}`}
+                        className={`flex-1 py-2 text-xs font-medium tracking-wide rounded transition-all active:scale-[0.96] ${state.exportMode === 'magnifier' ? 'bg-[#2563EB] text-white' : 'bg-[#2a2a38] text-[#9898b2] hover:bg-[#32324a]'}`}
                         onClick={() => setState(s => ({ ...s, exportMode: 'magnifier' }))}
                     >
                         Lens Only
@@ -705,10 +701,32 @@ const SuperLens: React.FC = () => {
                 </div>
 
                 <button
-                    className="w-full bg-[#2563EB] hover:bg-[#1d4fb8] text-white py-3 rounded-lg text-sm font-semibold tracking-wide transition-colors"
+                    className={`w-full py-3 rounded-lg text-sm font-semibold tracking-wide transition-all duration-200 active:scale-[0.97] disabled:cursor-not-allowed ${
+                        exportState === 'done'
+                            ? 'bg-[#1a6b3a] text-white'
+                            : exportState === 'error'
+                            ? 'bg-[#6b1a1a] text-[#ffaaaa]'
+                            : exportState === 'exporting'
+                            ? 'bg-[#1d4fb8] text-white opacity-80'
+                            : 'bg-[#2563EB] hover:bg-[#1d4fb8] text-white'
+                    }`}
                     onClick={handleExport}
+                    disabled={exportState === 'exporting'}
                 >
-                    Export {state.exportMode === 'full' ? 'Full Image' : 'Lens Only'}
+                    {exportState === 'done' ? (
+                        <span className="flex items-center justify-center gap-2">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <path className="export-check-path" d="M2 7l3.5 3.5L12 3" />
+                            </svg>
+                            Saved to Downloads
+                        </span>
+                    ) : exportState === 'error' ? (
+                        'Load an image first'
+                    ) : exportState === 'exporting' ? (
+                        'Exporting…'
+                    ) : (
+                        `Export ${state.exportMode === 'full' ? 'Full Image' : 'Lens Only'}`
+                    )}
                 </button>
             </div>
         </div>
