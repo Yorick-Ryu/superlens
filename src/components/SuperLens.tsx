@@ -1,22 +1,64 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Stage, Layer, Image as KonvaImage, Group, Rect, Circle, Line, Transformer } from 'react-konva';
 import useImage from 'use-image';
-import { Upload } from 'lucide-react'; // Removed unused imports
+import { Upload, RotateCcw } from 'lucide-react';
 import type { AppState } from '../types';
 import { getRectConnectionPoints, getCircleTangents } from '../utils/geometry';
 
-const INITIAL_STATE: AppState = {
-    image: null,
-    imageSize: { width: 800, height: 600 },
-    source: { x: 100, y: 100, width: 100, height: 100, type: 'circle', strokeWidth: 3, stroke: '#4E6BFE' },
-    target: { x: 300, y: 100, width: 200, height: 200, type: 'circle', strokeWidth: 3, stroke: '#4E6BFE' },
+const STORAGE_KEY = 'superlens-config';
+
+interface PersistedConfig {
+    shapeType: 'rect' | 'circle';
+    magnification: number;
+    showGuides: boolean;
+    backgroundOpacity: number;
+    connectionColor: string;
+    connectionWidth: number;
+    exportMode: 'full' | 'magnifier';
+    sourceStroke: string;
+    sourceStrokeWidth: number;
+    targetStroke: string;
+    targetStrokeWidth: number;
+}
+
+const DEFAULT_CONFIG: PersistedConfig = {
+    shapeType: 'circle',
     magnification: 1.5,
     showGuides: true,
     backgroundOpacity: 0.85,
     connectionColor: '#4E6BFE',
     connectionWidth: 3,
     exportMode: 'full',
+    sourceStroke: '#4E6BFE',
+    sourceStrokeWidth: 3,
+    targetStroke: '#4E6BFE',
+    targetStrokeWidth: 3,
 };
+
+function loadConfig(): PersistedConfig {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return { ...DEFAULT_CONFIG, ...JSON.parse(raw) };
+    } catch { /* ignore */ }
+    return DEFAULT_CONFIG;
+}
+
+function buildInitialState(cfg: PersistedConfig): AppState {
+    return {
+        image: null,
+        imageSize: { width: 800, height: 600 },
+        source: { x: 100, y: 100, width: 100, height: 100, type: cfg.shapeType, strokeWidth: cfg.sourceStrokeWidth, stroke: cfg.sourceStroke },
+        target: { x: 300, y: 100, width: 200, height: 200, type: cfg.shapeType, strokeWidth: cfg.targetStrokeWidth, stroke: cfg.targetStroke },
+        magnification: cfg.magnification,
+        showGuides: cfg.showGuides,
+        backgroundOpacity: cfg.backgroundOpacity,
+        connectionColor: cfg.connectionColor,
+        connectionWidth: cfg.connectionWidth,
+        exportMode: cfg.exportMode,
+    };
+}
+
+const INITIAL_STATE: AppState = buildInitialState(loadConfig());
 
 const SuperLens: React.FC = () => {
     const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -95,6 +137,44 @@ const SuperLens: React.FC = () => {
             targetTrRef.current.getLayer()?.batchDraw();
         }
     }, [state.source.type, state.target.type, state.image]); // Re-attach when shape changes
+
+    // Persist style config on every change
+    useEffect(() => {
+        const cfg: PersistedConfig = {
+            shapeType: state.source.type,
+            magnification: state.magnification,
+            showGuides: state.showGuides,
+            backgroundOpacity: state.backgroundOpacity,
+            connectionColor: state.connectionColor,
+            connectionWidth: state.connectionWidth,
+            exportMode: state.exportMode,
+            sourceStroke: state.source.stroke || DEFAULT_CONFIG.sourceStroke,
+            sourceStrokeWidth: state.source.strokeWidth || DEFAULT_CONFIG.sourceStrokeWidth,
+            targetStroke: state.target.stroke || DEFAULT_CONFIG.targetStroke,
+            targetStrokeWidth: state.target.strokeWidth || DEFAULT_CONFIG.targetStrokeWidth,
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+    }, [
+        state.source.type, state.magnification, state.showGuides, state.backgroundOpacity,
+        state.connectionColor, state.connectionWidth, state.exportMode,
+        state.source.stroke, state.source.strokeWidth,
+        state.target.stroke, state.target.strokeWidth,
+    ]);
+
+    const handleResetDefaults = () => {
+        localStorage.removeItem(STORAGE_KEY);
+        setState(prev => ({
+            ...prev,
+            source: { ...prev.source, type: DEFAULT_CONFIG.shapeType, stroke: DEFAULT_CONFIG.sourceStroke, strokeWidth: DEFAULT_CONFIG.sourceStrokeWidth },
+            target: { ...prev.target, type: DEFAULT_CONFIG.shapeType, stroke: DEFAULT_CONFIG.targetStroke, strokeWidth: DEFAULT_CONFIG.targetStrokeWidth },
+            magnification: DEFAULT_CONFIG.magnification,
+            showGuides: DEFAULT_CONFIG.showGuides,
+            backgroundOpacity: DEFAULT_CONFIG.backgroundOpacity,
+            connectionColor: DEFAULT_CONFIG.connectionColor,
+            connectionWidth: DEFAULT_CONFIG.connectionWidth,
+            exportMode: DEFAULT_CONFIG.exportMode,
+        }));
+    };
 
     const handleDragEnd = (role: 'source' | 'target', e: any) => {
         setState(prev => ({
@@ -523,6 +603,16 @@ const SuperLens: React.FC = () => {
                         {imageSrc ? 'Change Image' : 'Upload Image'}
                     </button>
                 </div>
+
+                {/* Reset Defaults */}
+                <button
+                    className="w-full bg-[#2a2a38] hover:bg-[#323244] text-[#64647a] hover:text-[#9898b2] py-2 rounded-md text-xs font-medium tracking-wide transition-all active:scale-[0.97] flex items-center justify-center gap-2"
+                    onClick={handleResetDefaults}
+                    title="Reset all style settings to defaults"
+                >
+                    <RotateCcw size={12} />
+                    Reset Defaults
+                </button>
 
                 {/* Shape Types */}
                 <div>
