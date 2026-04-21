@@ -432,7 +432,7 @@ const SuperLens: React.FC = () => {
                             </>
                         )}
 
-                        {state.source.width > 0 && renderConnections()}
+                        {state.source.width > 0 && state.showGuides && renderConnections()}
 
                         {/* Source Selection UI */}
                         {state.source.type === 'circle' ? (
@@ -523,8 +523,8 @@ const SuperLens: React.FC = () => {
                         className="w-full bg-[#2a2a38] hover:bg-[#323244] text-[#c8c8d8] py-2 rounded-lg text-xs font-medium tracking-wide transition-colors flex items-center justify-center gap-2"
                         onClick={() => document.getElementById('reupload-input')?.click()}
                     >
-                        <Upload size={18} />
-                        Re-upload Image
+                        <Upload size={14} />
+                        Change Image
                     </button>
                 </div>
 
@@ -576,20 +576,20 @@ const SuperLens: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="block text-xs font-medium text-[#9898b2]">Background Opacity</label>
+                    <label className="block text-xs font-medium text-[#9898b2]">Background Dim</label>
                     <input
                         type="range"
                         min="0"
                         max="1"
                         step="0.05"
-                        value={state.backgroundOpacity}
-                        onChange={(e) => setState(s => ({ ...s, backgroundOpacity: parseFloat(e.target.value) }))}
+                        value={1 - state.backgroundOpacity}
+                        onChange={(e) => setState(s => ({ ...s, backgroundOpacity: 1 - parseFloat(e.target.value) }))}
                         className="w-full accent-[#2563EB]"
                     />
                     <div className="flex justify-between text-[10px] text-[#505060] tabular-nums">
-                        <span>0%</span>
-                        <span className="text-[#9898b2]">{Math.round(state.backgroundOpacity * 100)}%</span>
-                        <span>100%</span>
+                        <span>Off</span>
+                        <span className="text-[#9898b2]">{Math.round((1 - state.backgroundOpacity) * 100)}%</span>
+                        <span>Full</span>
                     </div>
                 </div>
 
@@ -624,7 +624,16 @@ const SuperLens: React.FC = () => {
 
                 {/* Connection */}
                 <div className="space-y-2">
-                    <h3 className="text-[10px] font-semibold uppercase tracking-widest text-[#64647a] mb-2">Connection</h3>
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-[10px] font-semibold uppercase tracking-widest text-[#64647a]">Connection</h3>
+                        <button
+                            className={`w-8 h-4 rounded-full transition-colors relative flex-shrink-0 ${state.showGuides ? 'bg-[#2563EB]' : 'bg-[#333344]'}`}
+                            onClick={() => setState(s => ({ ...s, showGuides: !s.showGuides }))}
+                            title={state.showGuides ? 'Hide lines' : 'Show lines'}
+                        >
+                            <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${state.showGuides ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                        </button>
+                    </div>
                     <div className="grid grid-cols-3 gap-2">
                         <div>
                             <label className="text-[10px] font-medium uppercase tracking-wider text-[#64647a] mb-1 block">Color</label>
@@ -685,13 +694,13 @@ const SuperLens: React.FC = () => {
                         className={`flex-1 py-2 text-xs font-medium tracking-wide rounded transition-colors ${state.exportMode === 'full' ? 'bg-[#2563EB] text-white' : 'bg-[#2a2a38] text-[#9898b2] hover:bg-[#323244]'}`}
                         onClick={() => setState(s => ({ ...s, exportMode: 'full' }))}
                     >
-                        Full
+                        Full Image
                     </button>
                     <button
                         className={`flex-1 py-2 text-xs font-medium tracking-wide rounded transition-colors ${state.exportMode === 'magnifier' ? 'bg-[#2563EB] text-white' : 'bg-[#2a2a38] text-[#9898b2] hover:bg-[#32324a]'}`}
                         onClick={() => setState(s => ({ ...s, exportMode: 'magnifier' }))}
                     >
-                        Magnifier
+                        Lens Only
                     </button>
                 </div>
 
@@ -699,7 +708,7 @@ const SuperLens: React.FC = () => {
                     className="w-full bg-[#2563EB] hover:bg-[#1d4fb8] text-white py-3 rounded-lg text-sm font-semibold tracking-wide transition-colors"
                     onClick={handleExport}
                 >
-                    Export {state.exportMode === 'full' ? 'Image' : 'Magnifier'}
+                    Export {state.exportMode === 'full' ? 'Full Image' : 'Lens Only'}
                 </button>
             </div>
         </div>
